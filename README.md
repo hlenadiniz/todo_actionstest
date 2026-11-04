@@ -1,20 +1,38 @@
-# GitHub Actions 
+# Todo Actions
 
-## Objetivo
+Lista de tarefas simples em Python, usada para explorar testes automatizados com GitHub Actions.
 
-Explorar o uso do [GitHub Actions](https://docs.github.com/en/actions) para teste em múltiplos sistemas operacionais e versões de linguagens de programação.
+## O programa
 
-## Descrição
+A classe `TodoList` (em [todo.py](todo.py)) permite:
 
-1. **Criar programa com testes no GitHub:** Crie um reposiórtio no GitHub. Implemente um pequeno programa (na linguagem de sua escolha) e escreva pelo menos 5 testes de unidade.
-   
-2. **Executar os testes no GitHub Actions**: Configure a ferramenta de CI/CD GitHub Actions executar os testes automaticamente a cada commit. No GitHub, você encontra exemplos sobre como utilizar o GitHub Actions em linguagens (https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing).
+- adicionar tarefas (título vazio gera `ValueError`);
+- remover e concluir tarefas pelo id (id inexistente gera `KeyError`);
+- listar todas as tarefas ou apenas as pendentes.
 
-3. **Executar Actions nos sistemas operacionais Ubuntu, MacOS e Windows**: Configure o seu workflow do GitHub Actions para dar o build e testar o programa em três sistemas operacionais: Ubuntu, MacOS e Windows. 
+Os 8 testes de unidade, escritos com [pytest](https://pytest.org), estão em [test_todo.py](test_todo.py).
 
-4. **Executar Actions em pelo menos duas versões da linguagem de programação**: Configure o seu workflow do GitHub Actions para dar o build testar o programa em pelo menos duas versões da linguagem escolhida. 
+## Rodando localmente
 
-## Submissão
+```bash
+pip install -r requirements.txt
+python -m pytest -v
+```
 
-Submeter no Moodle o link do último build com sucesso do GitHub Actions.
-Por exemplo: https://github.com/Textualize/rich/actions/runs/18370672554
+## GitHub Actions
+
+O workflow está em [.github/workflows/ci.yml](.github/workflows/ci.yml) e roda a cada `push` e `pull request`.
+
+Ele usa uma **matriz** (`strategy.matrix`) que combina:
+
+- **Sistemas operacionais:** `ubuntu-latest`, `macos-latest` e `windows-latest`;
+- **Versões do Python:** 3.11, 3.12 e 3.13.
+
+Isso gera 9 jobs, e cada um executa estes passos:
+
+1. `actions/checkout` baixa o código;
+2. `actions/setup-python` instala a versão do Python da matriz;
+3. `pip install -r requirements.txt` instala o pytest;
+4. `python -m pytest -v` roda os testes.
+
+Com `fail-fast: false`, uma combinação que falha não cancela as outras, e dá para ver o resultado de todas.
